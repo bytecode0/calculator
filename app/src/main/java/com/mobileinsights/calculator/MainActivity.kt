@@ -3,14 +3,17 @@ package com.mobileinsights.calculator
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement.Absolute.SpaceAround
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -35,11 +38,11 @@ class MainActivity : ComponentActivity() {
             CalculatorTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
+                    modifier = Modifier.fillMaxSize(),
                     color = Black,
                     contentColor = MaterialTheme.colorScheme.background
                 ) {
                     Column {
-                        Spacer(modifier = Modifier.weight(100.0f)) // fill height with spacer
                         InputUIComponent()
                         KeyboardUIComponent()
                     }
@@ -73,8 +76,53 @@ fun InputUIComponent() {
 }
 
 @Composable
-fun KeyboardUIComponent() {
-    Text(text = "Here will be the keyboard")
+fun KeyboardUIComponent(modifier: Modifier  = Modifier.fillMaxWidth()) {
+    Row(modifier = modifier, horizontalArrangement = SpaceAround) {
+        RoundedButton(text = "AC")
+        RoundedButton(text = "+/-")
+        RoundedButton(text = " % ")
+        RoundedButton(text = "÷")
+    }
+    Row(modifier = modifier, horizontalArrangement = SpaceAround) {
+        RoundedButton(text = "7 ")
+        RoundedButton(text = "8")
+        RoundedButton(text = "9")
+        RoundedButton(text = "x")
+    }
+    Row(modifier = modifier, horizontalArrangement = SpaceAround) {
+        RoundedButton(text = "4")
+        RoundedButton(text = "5")
+        RoundedButton(text = "6")
+        RoundedButton(text = "-")
+    }
+    Row(modifier = modifier, horizontalArrangement = SpaceAround) {
+        RoundedButton(text = "1")
+        RoundedButton(text = "2")
+        RoundedButton(text = "3")
+        RoundedButton(text = "+")
+    }
+    Row(modifier = modifier, horizontalArrangement = SpaceAround) {
+        RoundedButton(text = "0")
+        RoundedButton(text = "")
+        RoundedButton(text = ",")
+        RoundedButton(text = "=")
+    }
+}
+
+@Composable
+fun RoundedButton(
+    text: String,
+    modifier: Modifier = Modifier
+        .size(75.dp)
+        .padding(4.dp)
+) {
+    OutlinedButton(
+        modifier = modifier,
+        onClick = { /*TODO*/ },
+        shape = CircleShape
+    ) {
+        Text(text = "$text")
+    }
 }
 
 @Preview(showBackground = true)
