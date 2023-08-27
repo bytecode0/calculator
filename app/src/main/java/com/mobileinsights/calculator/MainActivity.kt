@@ -20,10 +20,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,25 +30,41 @@ import androidx.compose.ui.unit.dp
 import com.mobileinsights.calculator.ui.theme.Black
 import com.mobileinsights.calculator.ui.theme.CalculatorTheme
 import com.mobileinsights.calculator.ui.theme.LightGray
+import kotlin.text.StringBuilder
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             CalculatorTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = Black,
-                    contentColor = MaterialTheme.colorScheme.background
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.SpaceAround
-                    ) {
-                        InputUIComponent()
-                        KeyboardUIComponent()
-                    }
+                CalculatorComponent()
+            }
+        }
+    }
+}
+
+@Composable
+fun CalculatorComponent() {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Black,
+        contentColor = MaterialTheme.colorScheme.background
+    ) {
+        Column(
+            verticalArrangement = Arrangement.SpaceAround
+        ) {
+            var inputMutableState = remember { mutableStateOf("0") }
+            InputUIComponent(inputMutableState)
+            KeyboardUIComponent { onValueChange ->
+                var valueBuilder = StringBuilder()
+                if (inputMutableState.value != "0") {
+                    valueBuilder
+                        .append(inputMutableState.value)
+
                 }
+                valueBuilder.append(onValueChange)
+
+                inputMutableState.value = valueBuilder.toString()
             }
         }
     }
@@ -57,14 +72,10 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InputUIComponent() {
-    var inputMutableState by remember { mutableStateOf("0") }
-
+fun InputUIComponent(mutableValueState: MutableState<String>) {
     TextField(
-        value = inputMutableState,
-        onValueChange = { newValue ->
-            inputMutableState = newValue
-        },
+        value = mutableValueState.value,
+        onValueChange = { },
         textStyle = MaterialTheme.typography.headlineLarge.copy(textAlign = TextAlign.End),
         readOnly = true,
         maxLines = 1,
@@ -79,7 +90,10 @@ fun InputUIComponent() {
 }
 
 @Composable
-fun KeyboardUIComponent(modifier: Modifier  = Modifier.fillMaxWidth()) {
+fun KeyboardUIComponent(
+    modifier: Modifier  = Modifier.fillMaxWidth(),
+    onValueChange: (String) -> Unit
+) {
     Row(modifier = modifier, horizontalArrangement = SpaceAround) {
         RoundedButton(text = "AC")
         RoundedButton(text = "+/-")
@@ -87,25 +101,36 @@ fun KeyboardUIComponent(modifier: Modifier  = Modifier.fillMaxWidth()) {
         RoundedButton(text = "÷")
     }
     Row(modifier = modifier, horizontalArrangement = SpaceAround) {
-        RoundedButton(text = "7 ")
-        RoundedButton(text = "8")
-        RoundedButton(text = "9")
+        RoundedButton(text = "7 ", onClick = onValueChange)
+        RoundedButton(text = "8", onClick = onValueChange)
+        RoundedButton(text = "9", onClick = onValueChange)
         RoundedButton(text = "x")
     }
     Row(modifier = modifier, horizontalArrangement = SpaceAround) {
-        RoundedButton(text = "4")
-        RoundedButton(text = "5")
-        RoundedButton(text = "6")
+        RoundedButton(text = "4", onClick = onValueChange)
+        RoundedButton(text = "5", onClick = onValueChange)
+        RoundedButton(text = "6", onClick = onValueChange)
         RoundedButton(text = "-")
     }
     Row(modifier = modifier, horizontalArrangement = SpaceAround) {
-        RoundedButton(text = "1")
-        RoundedButton(text = "2")
-        RoundedButton(text = "3")
-        RoundedButton(text = "+")
+        RoundedButton(
+            text = "1",
+            onClick = onValueChange
+        )
+        RoundedButton(
+            text = "2",
+            onClick = onValueChange
+        )
+        RoundedButton(
+            text = "3",
+            onClick = onValueChange
+        )
+        RoundedButton(
+            text = "+"
+        )
     }
     Row(modifier = modifier, horizontalArrangement = SpaceAround) {
-        RoundedButton(text = "0")
+        RoundedButton(text = "0", onClick = onValueChange)
         RoundedButton(text = "")
         RoundedButton(text = ",")
         RoundedButton(text = "=")
@@ -117,11 +142,14 @@ fun RoundedButton(
     text: String,
     modifier: Modifier = Modifier
         .size(75.dp)
-        .padding(4.dp)
+        .padding(4.dp),
+    onClick: (String) -> Unit = { }
 ) {
     OutlinedButton(
         modifier = modifier,
-        onClick = { /*TODO*/ },
+        onClick = {
+            onClick(text)
+        },
         shape = CircleShape
     ) {
         Text(text = "$text")
@@ -132,14 +160,6 @@ fun RoundedButton(
 @Composable
 fun CalculatorPreview() {
     CalculatorTheme {
-        Surface(
-            color = Black,
-            contentColor = MaterialTheme.colorScheme.background
-        ) {
-            Column {
-                InputUIComponent()
-                KeyboardUIComponent()
-            }
-        }
+        CalculatorComponent()
     }
 }
