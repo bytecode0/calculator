@@ -24,9 +24,12 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.mobileinsights.calculator.ui.theme.Black
 import com.mobileinsights.calculator.ui.theme.CalculatorTheme
 import com.mobileinsights.calculator.ui.theme.LightGray
@@ -54,7 +57,9 @@ fun CalculatorComponent() {
             verticalArrangement = Arrangement.SpaceAround
         ) {
             var inputMutableState = remember { mutableStateOf("0") }
-            InputUIComponent(inputMutableState)
+            val fontSize = calculateFontSize(inputMutableState.value)
+
+            InputUIComponent(inputMutableState, fontSize)
             KeyboardUIComponent { onValueChange ->
                 var valueBuilder = StringBuilder()
                 if (inputMutableState.value != "0") {
@@ -72,13 +77,19 @@ fun CalculatorComponent() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InputUIComponent(mutableValueState: MutableState<String>) {
+fun InputUIComponent(mutableValueState: MutableState<String>, fontSize: TextUnit) {
     TextField(
         value = mutableValueState.value,
         onValueChange = { },
-        textStyle = MaterialTheme.typography.headlineLarge.copy(textAlign = TextAlign.End),
+        textStyle = LocalDensity.current.run {
+            TextStyle(
+                fontSize = fontSize,
+                color = LightGray
+            )
+        },
         readOnly = true,
         maxLines = 1,
+        singleLine = true,
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 72.dp),
@@ -101,7 +112,7 @@ fun KeyboardUIComponent(
         RoundedButton(text = "÷")
     }
     Row(modifier = modifier, horizontalArrangement = SpaceAround) {
-        RoundedButton(text = "7 ", onClick = onValueChange)
+        RoundedButton(text = "7", onClick = onValueChange)
         RoundedButton(text = "8", onClick = onValueChange)
         RoundedButton(text = "9", onClick = onValueChange)
         RoundedButton(text = "x")
@@ -154,6 +165,19 @@ fun RoundedButton(
     ) {
         Text(text = "$text")
     }
+}
+
+@Composable
+fun calculateFontSize(text: String): TextUnit {
+    val baseFontSize = 72.sp
+    val maxDigitsBeforeScaling = 9
+
+    val scaleFactor = when {
+        text.length <= maxDigitsBeforeScaling -> 1f
+        else -> (maxDigitsBeforeScaling.toFloat() / text.length)
+    }
+
+    return baseFontSize * scaleFactor
 }
 
 @Preview(showBackground = true)
