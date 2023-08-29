@@ -24,8 +24,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -33,7 +32,6 @@ import androidx.compose.ui.unit.sp
 import com.mobileinsights.calculator.ui.theme.Black
 import com.mobileinsights.calculator.ui.theme.CalculatorTheme
 import com.mobileinsights.calculator.ui.theme.LightGray
-import kotlin.text.StringBuilder
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,22 +52,22 @@ fun CalculatorComponent() {
         contentColor = MaterialTheme.colorScheme.background
     ) {
         Column(
-            verticalArrangement = Arrangement.SpaceAround
+            verticalArrangement = Arrangement.Bottom
         ) {
-            var inputMutableState = remember { mutableStateOf("0") }
+            val inputMutableState = remember { mutableStateOf("0") }
             val fontSize = calculateFontSize(inputMutableState.value)
-
             InputUIComponent(inputMutableState, fontSize)
             KeyboardUIComponent { onValueChange ->
-                var valueBuilder = StringBuilder()
-                if (inputMutableState.value != "0") {
-                    valueBuilder
-                        .append(inputMutableState.value)
+                if (inputMutableState.value.length < 9) {
+                    val valueBuilder = StringBuilder()
+                    if (inputMutableState.value != "0") {
+                        valueBuilder
+                            .append(inputMutableState.value)
+                    }
+                    valueBuilder.append(onValueChange)
 
+                    inputMutableState.value = valueBuilder.toString()
                 }
-                valueBuilder.append(onValueChange)
-
-                inputMutableState.value = valueBuilder.toString()
             }
         }
     }
@@ -81,18 +79,15 @@ fun InputUIComponent(mutableValueState: MutableState<String>, fontSize: TextUnit
     TextField(
         value = mutableValueState.value,
         onValueChange = { },
-        textStyle = LocalDensity.current.run {
-            TextStyle(
-                fontSize = fontSize,
-                color = LightGray
-            )
-        },
+        textStyle = MaterialTheme.typography.headlineLarge.copy(
+            textAlign = TextAlign.End,
+            fontSize = fontSize
+        ),
         readOnly = true,
         maxLines = 1,
         singleLine = true,
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 72.dp),
+            .fillMaxWidth(),
         colors = TextFieldDefaults.textFieldColors(
             textColor = LightGray,
             containerColor = Black
@@ -169,8 +164,8 @@ fun RoundedButton(
 
 @Composable
 fun calculateFontSize(text: String): TextUnit {
-    val baseFontSize = 72.sp
-    val maxDigitsBeforeScaling = 9
+    val baseFontSize = 94.sp
+    val maxDigitsBeforeScaling = 7
 
     val scaleFactor = when {
         text.length <= maxDigitsBeforeScaling -> 1f
