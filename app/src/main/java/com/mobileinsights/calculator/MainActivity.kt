@@ -1,9 +1,12 @@
 package com.mobileinsights.calculator
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.Absolute.SpaceAround
 import androidx.compose.foundation.layout.Column
@@ -53,6 +56,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@SuppressLint("MutableCollectionMutableState")
 @Composable
 fun CalculatorComponent() {
     Surface(
@@ -63,23 +67,99 @@ fun CalculatorComponent() {
         Column(
             verticalArrangement = Arrangement.Bottom
         ) {
+            val eraser = remember { mutableStateOf(false) }
+            val numbers = remember { mutableStateOf(mutableListOf(0f)) }
+            val currentState = remember { mutableStateOf(Calculation.NONE) }
             val inputMutableState = remember { mutableStateOf("0") }
             val fontSize = calculateFontSize(inputMutableState.value)
             InputUIComponent(inputMutableState, fontSize)
-            KeyboardUIComponent { onValueChange ->
-                if (inputMutableState.value.length < 9) {
+            KeyboardUIComponent(onNumberChange = { value: Int ->
+                if (inputMutableState.value.length < 12) {
+                    if (eraser.value) {
+                        inputMutableState.value = "0"
+                        eraser.value = false
+                    }
                     val valueBuilder = StringBuilder()
                     if (inputMutableState.value != "0") {
                         valueBuilder
                             .append(inputMutableState.value)
                     }
-                    valueBuilder.append(onValueChange)
-
+                    valueBuilder.append(value)
                     inputMutableState.value = valueBuilder.toString()
                 }
-            }
+            }, onCalculation = { calculation ->
+                when (calculation) {
+                    Calculation.AC -> {
+                        inputMutableState.value = "0"
+                        numbers.value = mutableListOf(0f)
+                    }
+                    Calculation.PERCENTAGE -> {
+                        currentState.value = Calculation.PERCENTAGE
+                        numbers.value.add(inputMutableState.value.toFloat())
+                        eraser.value = true
+                    }
+                    Calculation.DIVISION -> {
+                        currentState.value = Calculation.DIVISION
+                        numbers.value.add(inputMutableState.value.toFloat())
+                        eraser.value = true
+                    }
+                    Calculation.MULTIPLICATION -> {
+                        currentState.value = Calculation.MULTIPLICATION
+                        numbers.value.add(inputMutableState.value.toFloat())
+                        eraser.value = true
+                    }
+                    Calculation.SUBTRACTION -> {
+                        currentState.value = Calculation.SUBTRACTION
+                        numbers.value.add(inputMutableState.value.toFloat())
+                        eraser.value = true
+                    }
+                    Calculation.ADDITION -> {
+                        currentState.value = Calculation.ADDITION
+                        numbers.value.add(inputMutableState.value.toFloat())
+                        eraser.value = true
+                    }
+                    Calculation.EQUALS -> {
+                        numbers.value.add(inputMutableState.value.toFloat())
+                        val newValue = calculate(numbers.value, currentState.value).toString()
+                        inputMutableState.value = newValue
+                        numbers.value.clear()
+                    }
+                    else -> {
+                        currentState.value = Calculation.NONE
+                    }
+                }
+            })
+
         }
     }
+}
+
+private fun calculate(numbers: MutableList<Float>, calculation: Calculation): Float {
+    if (numbers.isEmpty()) {
+        return 0f
+    }
+
+    numbers.removeIf { it == 0f }
+
+    var result = numbers[0]
+
+    for (i in 1 until numbers.size) {
+        val currentNumber = numbers[i]
+        when (calculation) {
+            Calculation.PERCENTAGE -> result %= currentNumber
+            Calculation.DIVISION -> {
+                if (currentNumber != 0f) {
+                    result /= currentNumber
+                }
+            }
+            Calculation.MULTIPLICATION -> result *= currentNumber
+            Calculation.SUBTRACTION -> result -= currentNumber
+            Calculation.ADDITION -> result += currentNumber
+            else -> return 0f
+        }
+    }
+
+    return result
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -93,7 +173,6 @@ fun InputUIComponent(mutableValueState: MutableState<String>, fontSize: TextUnit
             fontSize = fontSize
         ),
         readOnly = true,
-        maxLines = 1,
         singleLine = true,
         modifier = Modifier
             .fillMaxWidth(),
@@ -107,65 +186,135 @@ fun InputUIComponent(mutableValueState: MutableState<String>, fontSize: TextUnit
 @Composable
 fun KeyboardUIComponent(
     modifier: Modifier  = Modifier.fillMaxWidth(),
-    onValueChange: (String) -> Unit
+    onNumberChange: (Int) -> Unit,
+    onCalculation: (Calculation) -> Unit
 ) {
     Row(modifier = modifier, horizontalArrangement = SpaceAround) {
-        RoundedButton(text = "AC", calculatorButton = CalculatorButton.SpecialOperatorButton)
-        RoundedButton(text = "+/-", calculatorButton = CalculatorButton.SpecialOperatorButton)
-        RoundedButton(text = " % ", calculatorButton = CalculatorButton.SpecialOperatorButton)
-        RoundedButton(text = "÷", calculatorButton = CalculatorButton.OperatorButton)
+        RoundedButton(
+            text = "AC",
+            onCalculationClick = {
+                onCalculation(Calculation.AC)
+            }
+        )
+        RoundedButton(
+            text = "+/-",
+            onCalculationClick = {  }
+        )
+        RoundedButton(
+            text = " % ",
+            onCalculationClick = { onCalculation(Calculation.PERCENTAGE) }
+        )
+        RoundedButton(
+            text = "÷",
+            calculatorButton = CalculatorButtonType.Sign,
+            onCalculationClick = { onCalculation(Calculation.DIVISION) }
+        )
     }
     Row(modifier = modifier, horizontalArrangement = SpaceAround) {
-        RoundedButton(text = "7", onClick = onValueChange)
-        RoundedButton(text = "8", onClick = onValueChange)
-        RoundedButton(text = "9", onClick = onValueChange)
-        RoundedButton(text = "x", calculatorButton = CalculatorButton.OperatorButton)
+        RoundedButton(
+            text = "7",
+            calculatorButton = CalculatorButtonType.Number,
+            onNumberClick = onNumberChange
+        )
+        RoundedButton(
+            text = "8",
+            calculatorButton = CalculatorButtonType.Number,
+            onNumberClick = onNumberChange
+        )
+        RoundedButton(
+            text = "9",
+            calculatorButton = CalculatorButtonType.Number,
+            onNumberClick = onNumberChange
+        )
+        RoundedButton(
+            text = "x",
+            calculatorButton = CalculatorButtonType.Sign,
+            onCalculationClick = { onCalculation(Calculation.MULTIPLICATION) }
+        )
     }
     Row(modifier = modifier, horizontalArrangement = SpaceAround) {
-        RoundedButton(text = "4", onClick = onValueChange)
-        RoundedButton(text = "5", onClick = onValueChange)
-        RoundedButton(text = "6", onClick = onValueChange)
-        RoundedButton(text = "-", calculatorButton = CalculatorButton.OperatorButton)
+        RoundedButton(
+            text = "4",
+            calculatorButton = CalculatorButtonType.Number,
+            onNumberClick = onNumberChange
+        )
+        RoundedButton(
+            text = "5",
+            calculatorButton = CalculatorButtonType.Number,
+            onNumberClick = onNumberChange
+        )
+        RoundedButton(
+            text = "6",
+            calculatorButton = CalculatorButtonType.Number,
+            onNumberClick = onNumberChange
+        )
+        RoundedButton(
+            text = "-",
+            calculatorButton = CalculatorButtonType.Sign,
+            onCalculationClick = {
+                onCalculation(Calculation.SUBTRACTION)
+            }
+        )
     }
     Row(modifier = modifier, horizontalArrangement = SpaceAround) {
         RoundedButton(
             text = "1",
-            onClick = onValueChange
+            calculatorButton = CalculatorButtonType.Number,
+            onNumberClick = onNumberChange
         )
         RoundedButton(
             text = "2",
-            onClick = onValueChange
+            calculatorButton = CalculatorButtonType.Number,
+            onNumberClick = onNumberChange
         )
         RoundedButton(
             text = "3",
-            onClick = onValueChange
-        )
+            calculatorButton = CalculatorButtonType.Number,
+            onNumberClick = onNumberChange)
         RoundedButton(
             text = "+",
-            calculatorButton = CalculatorButton.OperatorButton
+            calculatorButton = CalculatorButtonType.Sign,
+            onCalculationClick = {
+                onCalculation(Calculation.ADDITION)
+            }
         )
     }
     Row(modifier = modifier, horizontalArrangement = SpaceAround) {
-        RoundedButton(text = "0", onClick = onValueChange)
+        RoundedButton(
+            text = "0",
+            calculatorButton = CalculatorButtonType.Number,
+            onNumberClick = onNumberChange
+        )
         RoundedButton(text = "")
         RoundedButton(text = ",")
-        RoundedButton(text = "=", calculatorButton = CalculatorButton.OperatorButton)
+        RoundedButton(
+            text = "=",
+            calculatorButton = CalculatorButtonType.Sign,
+            onCalculationClick = {
+                onCalculation(Calculation.EQUALS)
+            }
+        )
     }
 }
 
 @Composable
 fun RoundedButton(
     text: String,
-    calculatorButton: CalculatorButton = CalculatorButton.NumberButton,
+    calculatorButton: CalculatorButtonType = CalculatorButtonType.SpecialSign,
     modifier: Modifier = Modifier
         .size(90.dp)
         .padding(4.dp),
-    onClick: (String) -> Unit = { }
+    onNumberClick: (Int) -> Unit = { },
+    onCalculationClick: () -> Unit = { }
 ) {
     Button(
         modifier = modifier,
         onClick = {
-            onClick(text)
+            if (calculatorButton is CalculatorButtonType.Number) {
+                onNumberClick(text.toInt())
+            } else {
+                onCalculationClick.invoke()
+            }
         },
         shape = CircleShape,
         colors = getButtonColors(calculatorButton)
@@ -177,7 +326,7 @@ fun RoundedButton(
 @Composable
 fun calculateFontSize(text: String): TextUnit {
     val baseFontSize = 94.sp
-    val maxDigitsBeforeScaling = 7
+    val maxDigitsBeforeScaling = 6
 
     val scaleFactor = when {
         text.length <= maxDigitsBeforeScaling -> 1f
@@ -188,13 +337,13 @@ fun calculateFontSize(text: String): TextUnit {
 }
 
 @Composable
-fun getButtonColors(calculatorButton: CalculatorButton) : ButtonColors {
+fun getButtonColors(calculatorButton: CalculatorButtonType) : ButtonColors {
     return when (calculatorButton) {
-        is CalculatorButton.SpecialOperatorButton -> ButtonDefaults.buttonColors(
+        is CalculatorButtonType.SpecialSign -> ButtonDefaults.buttonColors(
             containerColor = LightGray,
             contentColor = Black
         )
-        is CalculatorButton.OperatorButton -> ButtonDefaults.buttonColors(
+        is CalculatorButtonType.Sign -> ButtonDefaults.buttonColors(
             containerColor = Orange,
             contentColor = Black
         )
@@ -207,11 +356,10 @@ fun getButtonColors(calculatorButton: CalculatorButton) : ButtonColors {
     }
 }
 
-sealed class CalculatorButton {
-    object SpecialOperatorButton : CalculatorButton()
-    object OperatorButton : CalculatorButton()
-
-    object NumberButton : CalculatorButton()
+interface CalculatorButtonType {
+    object Number : CalculatorButtonType
+    object Sign : CalculatorButtonType
+    object SpecialSign : CalculatorButtonType
 }
 
 @Preview(showBackground = true)
