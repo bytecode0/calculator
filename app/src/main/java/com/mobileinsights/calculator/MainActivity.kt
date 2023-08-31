@@ -14,10 +14,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.sp
 import com.mobileinsights.calculator.ui.InputUIComponent
 import com.mobileinsights.calculator.ui.KeyboardUIComponent
+import com.mobileinsights.calculator.ui.calculateFontSize
 import com.mobileinsights.calculator.ui.theme.Black
 import com.mobileinsights.calculator.ui.theme.CalculatorTheme
 
@@ -153,20 +152,6 @@ private fun calCurrentState(
     }
     return calculation
 }
-
-@Composable
-fun calculateFontSize(text: String): TextUnit {
-    val baseFontSize = 94.sp
-    val maxDigitsBeforeScaling = 6
-
-    val scaleFactor = when {
-        text.length <= maxDigitsBeforeScaling -> 1f
-        else -> (maxDigitsBeforeScaling.toFloat() / text.length)
-    }
-
-    return baseFontSize * scaleFactor
-}
-
 
 @Preview(showBackground = true)
 @Composable
