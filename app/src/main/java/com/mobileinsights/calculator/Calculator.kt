@@ -1,15 +1,16 @@
 package com.mobileinsights.calculator
 
-enum class Calculation(
-    val signName: String,
+enum class Operator(
     val symbol: String
 ) {
-    NONE("", ""),
-    AC("AC", "AC"),
-    PERCENTAGE("Percentage", "%"),
-    DIVISION("Division", "/"),
-    MULTIPLICATION("Multiplication", "x"),
-    SUBTRACTION("Subtraction", "-"),
-    ADDITION("Addition", "+"),
-    EQUALS("Equals", "=")
+    NONE(""),
+    AC("AC"),
+    MORE_LESS("+/-"),
+    PERCENTAGE("%"),
+    COMMA(","),
+    DIVISION( "/"),
+    MULTIPLICATION( "x"),
+    SUBTRACTION("-"),
+    ADDITION("+"),
+    EQUALS( "=")
 }
