@@ -50,6 +50,19 @@ fun InputUIComponent(mutableValueState: MutableState<String>, fontSize: TextUnit
 }
 
 @Composable
+fun calculateFontSize(text: String): TextUnit {
+    val baseFontSize = 94.sp
+    val maxDigitsBeforeScaling = 6
+
+    val scaleFactor = when {
+        text.length <= maxDigitsBeforeScaling -> 1f
+        else -> (maxDigitsBeforeScaling.toFloat() / text.length)
+    }
+
+    return baseFontSize * scaleFactor
+}
+
+@Composable
 fun KeyboardUIComponent(
     modifier: Modifier  = Modifier.fillMaxWidth(),
     onNumberChange: (Int) -> Unit,
