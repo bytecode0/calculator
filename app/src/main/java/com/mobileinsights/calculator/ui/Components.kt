@@ -1,5 +1,7 @@
 package com.mobileinsights.calculator.ui
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,7 +43,8 @@ fun InputUIComponent(mutableValueState: MutableState<String>, fontSize: TextUnit
         readOnly = true,
         singleLine = true,
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .animateContentSize(),
         colors = TextFieldDefaults.textFieldColors(
             textColor = LightGray,
             containerColor = Black
@@ -65,6 +68,7 @@ fun calculateFontSize(text: String): TextUnit {
 @Composable
 fun KeyboardUIComponent(
     modifier: Modifier  = Modifier.fillMaxWidth(),
+    operatorState: MutableState<Operator>,
     onNumberChange: (Int) -> Unit,
     onOperatorClick: (Operator) -> Unit
 ) {
@@ -84,6 +88,7 @@ fun KeyboardUIComponent(
         )
         OperatorRoundedButton(
             operator = Operator.DIVISION,
+            currentOperator = operatorState.value,
             onClick =  onOperatorClick
         )
     }
@@ -102,6 +107,7 @@ fun KeyboardUIComponent(
         )
         OperatorRoundedButton(
             operator = Operator.MULTIPLICATION,
+            currentOperator = operatorState.value,
             onClick =  onOperatorClick
         )
     }
@@ -120,6 +126,7 @@ fun KeyboardUIComponent(
         )
         OperatorRoundedButton(
             operator = Operator.SUBTRACTION,
+            currentOperator = operatorState.value,
             onClick =  onOperatorClick
         )
     }
@@ -138,6 +145,7 @@ fun KeyboardUIComponent(
         )
         OperatorRoundedButton(
             operator = Operator.ADDITION,
+            currentOperator = operatorState.value,
             onClick =  onOperatorClick
         )
     }
@@ -154,6 +162,7 @@ fun KeyboardUIComponent(
         )
         OperatorRoundedButton(
             operator = Operator.EQUALS,
+            currentOperator = operatorState.value,
             onClick =  onOperatorClick
         )
     }
@@ -179,6 +188,7 @@ fun SpecialOperatorRoundedButton(
 @Composable
 fun OperatorRoundedButton(
     operator: Operator,
+    currentOperator: Operator,
     modifier: Modifier = Modifier
         .size(90.dp)
         .padding(4.dp),
@@ -186,7 +196,8 @@ fun OperatorRoundedButton(
 ) {
     CustomRoundedButton(
         text = operator.symbol,
-        buttonStyle = ButtonStyle.Operator,
+        buttonStyle = if (currentOperator == operator) ButtonStyle.SelectedOperator
+        else ButtonStyle.Operator,
         modifier = modifier,
         onClick = {
             onClick.invoke(operator)
@@ -240,6 +251,10 @@ fun getButtonColors(buttonStyle: ButtonStyle) : ButtonColors {
         )
         is ButtonStyle.Operator -> ButtonDefaults.buttonColors(
             containerColor = Orange,
+            contentColor = Black
+        )
+        is ButtonStyle.SelectedOperator -> ButtonDefaults.buttonColors(
+            containerColor = White,
             contentColor = Black
         )
         else -> {

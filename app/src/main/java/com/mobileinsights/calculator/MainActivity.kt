@@ -51,6 +51,7 @@ fun CalculatorComponent() {
 
             InputUIComponent(entryState, fontSize)
             KeyboardUIComponent(
+                operatorState = operatorState,
                 onNumberChange = { value: Int ->
                     if (entryState.value.length < 12) {
                         if (eraserState.value) {
@@ -74,36 +75,35 @@ fun CalculatorComponent() {
                         Operator.PERCENTAGE -> {
                             if (eraserState.value.not()) {
                                 entryState.value = (entryState.value.toFloat() / 100).toString()
-                                // eraserState.value = true
                             }
                         }
                         Operator.DIVISION -> {
                             if (eraserState.value.not())  {
-                                operatorState.value = Operator.DIVISION
-                                val division = Calculator.Division(
-                                    actual = memoryState.value as Float,
-                                    division = entryState.value.toFloat()
-                                )()
-                                memoryState.value = division
-                                entryState.value = division.toString()
-                                eraserState.value = true
+                                val total = calculation(
+                                    actual = memoryState.value ?: 0f,
+                                    entry = entryState.value.toFloat(),
+                                    operatorState.value
+                                )
+                                memoryState.value = total
+                                entryState.value = total.toString()
                             } else  {
                                 operatorState.value = Operator.DIVISION
                             }
                         }
                         Operator.MULTIPLICATION -> {
                             if (eraserState.value.not())  {
-                                operatorState.value = Operator.MULTIPLICATION
                                 if (memoryState.value == null) {
                                     memoryState.value = entryState.value.toFloat()
                                 } else {
-                                    val multiplication = Calculator.Multiplication(
-                                        actual = memoryState.value as Float,
-                                        multiplication = entryState.value.toFloat()
-                                    )()
-                                    memoryState.value = multiplication
-                                    entryState.value = multiplication.toString()
+                                    val total = calculation(
+                                        actual = memoryState.value ?: 0f,
+                                        entry = entryState.value.toFloat(),
+                                        operatorState.value
+                                    )
+                                    memoryState.value = total
+                                    entryState.value = total.toString()
                                 }
+                                operatorState.value = Operator.MULTIPLICATION
                                 eraserState.value = true
                             } else  {
                                 operatorState.value = Operator.MULTIPLICATION
@@ -111,17 +111,18 @@ fun CalculatorComponent() {
                         }
                         Operator.SUBTRACTION -> {
                             if (eraserState.value.not())  {
-                                operatorState.value = Operator.SUBTRACTION
                                 if (memoryState.value == null) {
                                     memoryState.value = entryState.value.toFloat()
                                 } else {
-                                    val subtraction = Calculator.Subtraction(
-                                        actual = memoryState.value as Float,
-                                        subtraction = entryState.value.toFloat()
-                                    )()
-                                    memoryState.value = subtraction
-                                    entryState.value = subtraction.toString()
+                                    val total = calculation(
+                                        actual = memoryState.value ?: 0f,
+                                        entry = entryState.value.toFloat(),
+                                        operatorState.value
+                                    )
+                                    memoryState.value = total
+                                    entryState.value = total.toString()
                                 }
+                                operatorState.value = Operator.SUBTRACTION
                                 eraserState.value = true
                             } else {
                                 operatorState.value = Operator.SUBTRACTION
@@ -129,17 +130,18 @@ fun CalculatorComponent() {
                         }
                         Operator.ADDITION -> {
                             if (!eraserState.value)  {
-                                operatorState.value = Operator.ADDITION
                                 if (memoryState.value == null) {
                                     memoryState.value = entryState.value.toFloat()
                                 } else {
-                                    val addition = Calculator.Addition(
-                                        actual = memoryState.value as Float,
-                                        plus = entryState.value.toFloat()
-                                    )()
-                                    memoryState.value = addition
-                                    entryState.value = addition.toString()
+                                    val total = calculation(
+                                        actual = memoryState.value ?: 0f,
+                                        entry = entryState.value.toFloat(),
+                                        operatorState.value
+                                    )
+                                    memoryState.value = total
+                                    entryState.value = total.toString()
                                 }
+                                operatorState.value = Operator.ADDITION
                                 eraserState.value = true
                             } else {
                                 operatorState.value = Operator.ADDITION
@@ -154,6 +156,7 @@ fun CalculatorComponent() {
                             memoryState.value = total
                             entryState.value = total.toString()
                             eraserState.value = true
+                            operatorState.value = Operator.AC
                         }
                         Operator.NONE -> TODO()
                         Operator.MORE_LESS -> TODO()
