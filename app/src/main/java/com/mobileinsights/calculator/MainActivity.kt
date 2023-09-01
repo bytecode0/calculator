@@ -78,7 +78,7 @@ fun CalculatorComponent() {
                             if (eraser.value.not())  {
                                 numbers.value.add(inputMutableState.value.toFloat())
                                 currentState.value = Operator.DIVISION
-                                val newValue = calCurrentState(numbers.value, currentState.value)
+                                val newValue = Calculator.Division(numbers.value)()
                                 numbers.value = mutableListOf(newValue)
                                 inputMutableState.value = newValue.toString()
                             } else  {
@@ -90,7 +90,7 @@ fun CalculatorComponent() {
                             if (eraser.value.not())  {
                                 numbers.value.add(inputMutableState.value.toFloat())
                                 currentState.value = Operator.MULTIPLICATION
-                                val newValue = calCurrentState(numbers.value, currentState.value)
+                                val newValue = Calculator.Multiplication(numbers.value)()
                                 numbers.value = mutableListOf(newValue)
                                 inputMutableState.value = newValue.toString()
                             } else  {
@@ -102,7 +102,7 @@ fun CalculatorComponent() {
                             if (eraser.value.not())  {
                                 numbers.value.add(inputMutableState.value.toFloat())
                                 currentState.value = Operator.SUBTRACTION
-                                val newValue = calCurrentState(numbers.value, currentState.value)
+                                val newValue = Calculator.Subtraction(numbers.value)()
                                 numbers.value = mutableListOf(newValue)
                                 inputMutableState.value = newValue.toString()
                             } else {
@@ -114,7 +114,7 @@ fun CalculatorComponent() {
                             if (!eraser.value)  {
                                 numbers.value.add(inputMutableState.value.toFloat())
                                 currentState.value = Operator.ADDITION
-                                val newValue = calCurrentState(numbers.value, currentState.value)
+                                val newValue = Calculator.Addition(numbers.value)()
                                 numbers.value = mutableListOf(newValue)
                                 inputMutableState.value = newValue.toString()
                             } else {
@@ -124,7 +124,7 @@ fun CalculatorComponent() {
                         }
                         Operator.EQUALS -> {
                             numbers.value.add(inputMutableState.value.toFloat())
-                            val newValue = calCurrentState(numbers.value, currentState.value)
+                            val newValue = calculation(numbers.value, currentState.value)
                             inputMutableState.value = newValue.toString()
                             numbers.value.clear()
                         }
@@ -138,7 +138,7 @@ fun CalculatorComponent() {
     }
 }
 
-private fun calCurrentState(
+private fun calculation(
     numbers: MutableList<Float>,
     currentOperator: Operator
 ): Float {
