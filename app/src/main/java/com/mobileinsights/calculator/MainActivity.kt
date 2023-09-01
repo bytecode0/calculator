@@ -69,12 +69,13 @@ fun CalculatorComponent() {
                     when (operator) {
                         Operator.AC -> {
                             entryState.value = "0"
-                            memoryState.value = 0f
+                            memoryState.value = null
                         }
                         Operator.PERCENTAGE -> {
-                            operatorState.value = Operator.PERCENTAGE
-                            memoryState.value = entryState.value.toFloat()
-                            eraserState.value = true
+                            if (eraserState.value.not()) {
+                                entryState.value = (entryState.value.toFloat() / 100).toString()
+                                // eraserState.value = true
+                            }
                         }
                         Operator.DIVISION -> {
                             if (eraserState.value.not())  {
