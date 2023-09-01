@@ -1,13 +1,20 @@
 package com.mobileinsights.calculator.ui
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
@@ -18,7 +25,12 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -67,7 +79,9 @@ fun calculateFontSize(text: String): TextUnit {
 
 @Composable
 fun KeyboardUIComponent(
-    modifier: Modifier  = Modifier.fillMaxWidth(),
+    modifier: Modifier  = Modifier
+        .fillMaxWidth()
+        .padding(4.dp),
     operatorState: MutableState<Operator>,
     onNumberChange: (Int) -> Unit,
     onOperatorClick: (Operator) -> Unit
@@ -176,10 +190,10 @@ fun SpecialOperatorRoundedButton(
         .padding(4.dp),
     onClick: (Operator) -> Unit = { }
 ) {
-    CustomRoundedButton(
+    CustomAnimatedButton(
         text = operator.symbol,
-        buttonStyle = ButtonStyle.SpecialOperator,
-        modifier = modifier,
+        textColor = Black,
+        backgroundColor = LightGray,
         onClick = {
             onClick.invoke(operator)
         }
@@ -189,16 +203,13 @@ fun SpecialOperatorRoundedButton(
 fun OperatorRoundedButton(
     operator: Operator,
     currentOperator: Operator,
-    modifier: Modifier = Modifier
-        .size(90.dp)
-        .padding(4.dp),
     onClick: (Operator) -> Unit = { }
 ) {
-    CustomRoundedButton(
+    val backgroundColor = if (currentOperator == operator) White else Orange
+    CustomAnimatedButton(
         text = operator.symbol,
-        buttonStyle = if (currentOperator == operator) ButtonStyle.SelectedOperator
-        else ButtonStyle.Operator,
-        modifier = modifier,
+        textColor = Black,
+        backgroundColor = backgroundColor,
         onClick = {
             onClick.invoke(operator)
         }
@@ -208,15 +219,12 @@ fun OperatorRoundedButton(
 @Composable
 fun NumberRoundedButton(
     text: String,
-    modifier: Modifier = Modifier
-        .size(90.dp)
-        .padding(4.dp),
     onClick: (Int) -> Unit = { }
 ) {
-    CustomRoundedButton(
+    CustomAnimatedButton(
         text = text,
-        buttonStyle = ButtonStyle.Number,
-        modifier = modifier,
+        textColor = White,
+        backgroundColor = DarkGray,
         onClick = {
             onClick(text.toInt())
         }
@@ -239,6 +247,37 @@ fun CustomRoundedButton(
         colors = getButtonColors(buttonStyle)
     ) {
         Text(text = text, fontSize = 24.sp)
+    }
+}
+
+@Composable
+fun CustomAnimatedButton(
+    text: String,
+    textColor: Color,
+    backgroundColor: Color,
+    onClick: () -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed = interactionSource.collectIsPressedAsState()
+    val cornerRadius by animateDpAsState(targetValue = if (isPressed.value) 10.dp else 50.dp)
+
+    Box(
+        modifier = Modifier
+            .background(color = backgroundColor, RoundedCornerShape(cornerRadius))
+            .size(90.dp)
+            .clip(RoundedCornerShape(cornerRadius))
+            .clickable(
+                interactionSource = interactionSource,
+                indication = rememberRipple()
+            ) {
+                onClick()
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            color = textColor
+        )
     }
 }
 

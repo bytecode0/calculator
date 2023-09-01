@@ -79,13 +79,19 @@ fun CalculatorComponent() {
                         }
                         Operator.DIVISION -> {
                             if (eraserState.value.not())  {
-                                val total = calculation(
-                                    actual = memoryState.value ?: 0f,
-                                    entry = entryState.value.toFloat(),
-                                    operatorState.value
-                                )
-                                memoryState.value = total
-                                entryState.value = total.toString()
+                                if (memoryState.value == null) {
+                                    memoryState.value = entryState.value.toFloat()
+                                } else {
+                                    val total = calculation(
+                                        actual = memoryState.value ?: 0f,
+                                        entry = entryState.value.toFloat(),
+                                        operatorState.value
+                                    )
+                                    memoryState.value = total
+                                    entryState.value = total.toString()
+                                }
+                                operatorState.value = Operator.DIVISION
+                                eraserState.value = true
                             } else  {
                                 operatorState.value = Operator.DIVISION
                             }
