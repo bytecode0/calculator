@@ -1,49 +1,37 @@
 package com.mobileinsights.calculator
 
-sealed class Calculator(private val numbers: MutableList<Float>) {
-    private fun checkIfMutableListIsEmpty(): Boolean = numbers.isEmpty()
-    private fun remove0ValueItems() {
-        numbers.removeIf { it == 0f }
-    }
-
-    protected abstract fun performCalculation(result: Float, currentNumber: Float): Float
+sealed class Calculator(
+    private val actual: Float,
+    private val number: Float
+) {
+    protected abstract fun performCalculation(actual: Float, currentNumber: Float): Float
 
     operator fun invoke(): Float {
-        if (checkIfMutableListIsEmpty()) {
-            return 0f
-        }
-        remove0ValueItems()
-
-        var result = numbers.first()
-        for (i in 1 until numbers.size) {
-            val currentNumber = numbers[i]
-            result = performCalculation(result, currentNumber)
-        }
-        return result
+        return performCalculation(actual, number)
     }
 
-    class Addition(numbers: MutableList<Float>) : Calculator(numbers) {
-        override fun performCalculation(result: Float, currentNumber: Float): Float {
-            return result + currentNumber
+    class Addition(actual: Float, plus: Float) : Calculator(actual, plus) {
+        override fun performCalculation(actual: Float, number: Float): Float {
+            return actual + number
         }
     }
 
-    class Subtraction(numbers: MutableList<Float>) : Calculator(numbers) {
-        override fun performCalculation(result: Float, currentNumber: Float): Float {
-            return result - currentNumber
+    class Subtraction(actual: Float, subtraction: Float) : Calculator(actual, subtraction) {
+        override fun performCalculation(actual: Float, number: Float): Float {
+            return actual - number
         }
     }
 
-    class Multiplication(numbers: MutableList<Float>) : Calculator(numbers) {
-        override fun performCalculation(result: Float, currentNumber: Float): Float {
-            return result * currentNumber
+    class Multiplication(actual: Float, multiplication: Float) : Calculator(actual, multiplication) {
+        override fun performCalculation(actual: Float, number: Float): Float {
+            return actual * number
         }
     }
 
-    class Division(numbers: MutableList<Float>) : Calculator(numbers) {
-        override fun performCalculation(result: Float, currentNumber: Float): Float {
-            if (currentNumber != 0f) {
-                return result / currentNumber
+    class Division(actual: Float, division: Float) : Calculator(actual, division) {
+        override fun performCalculation(actual: Float, number: Float): Float {
+            if (number != 0f) {
+                return actual / number
             }
             // Handle division by zero gracefully
             throw IllegalArgumentException("Division by zero is not allowed.")

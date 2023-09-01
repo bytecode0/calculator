@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -42,91 +43,116 @@ fun CalculatorComponent() {
         Column(
             verticalArrangement = Arrangement.Bottom
         ) {
-            val eraser = remember { mutableStateOf(false) }
-            val numbers = remember { mutableStateOf(mutableListOf(0f)) }
-            val currentState = remember { mutableStateOf(Operator.AC) }
-            val inputMutableState = remember { mutableStateOf("0") }
-            val fontSize = calculateFontSize(inputMutableState.value)
-            InputUIComponent(inputMutableState, fontSize)
+            val eraserState = remember { mutableStateOf(false) }
+            val memoryState: MutableState<Float?> = remember { mutableStateOf(null) }
+            val operatorState = remember { mutableStateOf(Operator.AC) }
+            val entryState = remember { mutableStateOf("0") }
+            val fontSize = calculateFontSize(entryState.value)
+
+            InputUIComponent(entryState, fontSize)
             KeyboardUIComponent(
                 onNumberChange = { value: Int ->
-                    if (inputMutableState.value.length < 12) {
-                        if (eraser.value) {
-                            inputMutableState.value = "0"
-                            eraser.value = false
+                    if (entryState.value.length < 12) {
+                        if (eraserState.value) {
+                            entryState.value = "0"
+                            eraserState.value = false
                         }
                         val valueBuilder = StringBuilder()
-                        if (inputMutableState.value != "0") {
+                        if (entryState.value != "0") {
                             valueBuilder
-                                .append(inputMutableState.value)
+                                .append(entryState.value)
                         }
                         valueBuilder.append(value)
-                        inputMutableState.value = valueBuilder.toString()
+                        entryState.value = valueBuilder.toString()
                     }
-                }, onOperatorClick = { calculation ->
-                    when (calculation) {
+                }, onOperatorClick = { operator ->
+                    when (operator) {
                         Operator.AC -> {
-                            inputMutableState.value = "0"
-                            numbers.value = mutableListOf(0f)
+                            entryState.value = "0"
+                            memoryState.value = 0f
                         }
                         Operator.PERCENTAGE -> {
-                            currentState.value = Operator.PERCENTAGE
-                            numbers.value.add(inputMutableState.value.toFloat())
-                            eraser.value = true
+                            operatorState.value = Operator.PERCENTAGE
+                            memoryState.value = entryState.value.toFloat()
+                            eraserState.value = true
                         }
                         Operator.DIVISION -> {
-                            if (eraser.value.not())  {
-                                numbers.value.add(inputMutableState.value.toFloat())
-                                currentState.value = Operator.DIVISION
-                                val newValue = Calculator.Division(numbers.value)()
-                                numbers.value = mutableListOf(newValue)
-                                inputMutableState.value = newValue.toString()
+                            if (eraserState.value.not())  {
+                                operatorState.value = Operator.DIVISION
+                                val division = Calculator.Division(
+                                    actual = memoryState.value as Float,
+                                    division = entryState.value.toFloat()
+                                )()
+                                memoryState.value = division
+                                entryState.value = division.toString()
+                                eraserState.value = true
                             } else  {
-                                currentState.value = Operator.DIVISION
+                                operatorState.value = Operator.DIVISION
                             }
-                            eraser.value = true
                         }
                         Operator.MULTIPLICATION -> {
-                            if (eraser.value.not())  {
-                                numbers.value.add(inputMutableState.value.toFloat())
-                                currentState.value = Operator.MULTIPLICATION
-                                val newValue = Calculator.Multiplication(numbers.value)()
-                                numbers.value = mutableListOf(newValue)
-                                inputMutableState.value = newValue.toString()
+                            if (eraserState.value.not())  {
+                                operatorState.value = Operator.MULTIPLICATION
+                                if (memoryState.value == null) {
+                                    memoryState.value = entryState.value.toFloat()
+                                } else {
+                                    val multiplication = Calculator.Multiplication(
+                                        actual = memoryState.value as Float,
+                                        multiplication = entryState.value.toFloat()
+                                    )()
+                                    memoryState.value = multiplication
+                                    entryState.value = multiplication.toString()
+                                }
+                                eraserState.value = true
                             } else  {
-                                currentState.value = Operator.MULTIPLICATION
+                                operatorState.value = Operator.MULTIPLICATION
                             }
-                            eraser.value = true
                         }
                         Operator.SUBTRACTION -> {
-                            if (eraser.value.not())  {
-                                numbers.value.add(inputMutableState.value.toFloat())
-                                currentState.value = Operator.SUBTRACTION
-                                val newValue = Calculator.Subtraction(numbers.value)()
-                                numbers.value = mutableListOf(newValue)
-                                inputMutableState.value = newValue.toString()
+                            if (eraserState.value.not())  {
+                                operatorState.value = Operator.SUBTRACTION
+                                if (memoryState.value == null) {
+                                    memoryState.value = entryState.value.toFloat()
+                                } else {
+                                    val subtraction = Calculator.Subtraction(
+                                        actual = memoryState.value as Float,
+                                        subtraction = entryState.value.toFloat()
+                                    )()
+                                    memoryState.value = subtraction
+                                    entryState.value = subtraction.toString()
+                                }
+                                eraserState.value = true
                             } else {
-                                currentState.value = Operator.SUBTRACTION
+                                operatorState.value = Operator.SUBTRACTION
                             }
-                            eraser.value = true
                         }
                         Operator.ADDITION -> {
-                            if (!eraser.value)  {
-                                numbers.value.add(inputMutableState.value.toFloat())
-                                currentState.value = Operator.ADDITION
-                                val newValue = Calculator.Addition(numbers.value)()
-                                numbers.value = mutableListOf(newValue)
-                                inputMutableState.value = newValue.toString()
+                            if (!eraserState.value)  {
+                                operatorState.value = Operator.ADDITION
+                                if (memoryState.value == null) {
+                                    memoryState.value = entryState.value.toFloat()
+                                } else {
+                                    val addition = Calculator.Addition(
+                                        actual = memoryState.value as Float,
+                                        plus = entryState.value.toFloat()
+                                    )()
+                                    memoryState.value = addition
+                                    entryState.value = addition.toString()
+                                }
+                                eraserState.value = true
                             } else {
-                                currentState.value = Operator.ADDITION
+                                operatorState.value = Operator.ADDITION
                             }
-                            eraser.value = true
                         }
                         Operator.EQUALS -> {
-                            numbers.value.add(inputMutableState.value.toFloat())
-                            val newValue = calculation(numbers.value, currentState.value)
-                            inputMutableState.value = newValue.toString()
-                            numbers.value.clear()
+                            val total = calculation(
+                                actual = memoryState.value ?: 0f,
+                                entry = entryState.value.toFloat(),
+                                operatorState.value
+                            )
+                            memoryState.value = total
+                            entryState.value = total.toString()
+                            eraserState.value = true
                         }
                         Operator.NONE -> TODO()
                         Operator.MORE_LESS -> TODO()
@@ -139,15 +165,16 @@ fun CalculatorComponent() {
 }
 
 private fun calculation(
-    numbers: MutableList<Float>,
+    actual: Float,
+    entry: Float,
     currentOperator: Operator
 ): Float {
     val calculation = when (currentOperator) {
         // Operator.PERCENTAGE -> result %= currentNumber
-        Operator.DIVISION -> Calculator.Division(numbers)()
-        Operator.MULTIPLICATION -> Calculator.Multiplication(numbers)()
-        Operator.SUBTRACTION -> Calculator.Subtraction(numbers)()
-        Operator.ADDITION -> Calculator.Addition(numbers)()
+        Operator.DIVISION -> Calculator.Division(actual, entry)()
+        Operator.MULTIPLICATION -> Calculator.Multiplication(actual, entry)()
+        Operator.SUBTRACTION -> Calculator.Subtraction(actual, entry)()
+        Operator.ADDITION -> Calculator.Addition(actual, entry)()
         else -> 0f
     }
     return calculation
