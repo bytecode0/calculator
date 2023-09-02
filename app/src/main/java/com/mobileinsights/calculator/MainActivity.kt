@@ -52,20 +52,12 @@ fun CalculatorComponent() {
             InputUIComponent(entryState, fontSize)
             KeyboardUIComponent(
                 operatorState = operatorState,
-                onNumberChange = { value: Int ->
-                    if (entryState.value.length < 12) {
-                        if (eraserState.value) {
-                            entryState.value = "0"
-                            eraserState.value = false
-                        }
-                        val valueBuilder = StringBuilder()
-                        if (entryState.value != "0") {
-                            valueBuilder
-                                .append(entryState.value)
-                        }
-                        valueBuilder.append(value)
-                        entryState.value = valueBuilder.toString()
-                    }
+                onNumberChange = { entry: Int ->
+                    enterNumber(
+                        entryState = entryState,
+                        eraserState = eraserState,
+                        entry = entry
+                    )
                 }, onOperatorClick = { operator ->
                     when (operator) {
                         Operator.AC -> {
@@ -77,93 +69,35 @@ fun CalculatorComponent() {
                                 entryState.value = (entryState.value.toFloat() / 100).toString()
                             }
                         }
-                        Operator.DIVISION -> {
-                            if (eraserState.value.not())  {
-                                if (memoryState.value == null) {
-                                    memoryState.value = entryState.value.toFloat()
-                                } else {
-                                    val total = calculation(
-                                        actual = memoryState.value ?: 0f,
-                                        entry = entryState.value.toFloat(),
-                                        operatorState.value
-                                    )
-                                    memoryState.value = total
-                                    entryState.value = total.toString()
-                                }
-                                operatorState.value = Operator.DIVISION
-                                eraserState.value = true
-                            } else  {
-                                operatorState.value = Operator.DIVISION
-                            }
-                        }
-                        Operator.MULTIPLICATION -> {
-                            if (eraserState.value.not())  {
-                                if (memoryState.value == null) {
-                                    memoryState.value = entryState.value.toFloat()
-                                } else {
-                                    val total = calculation(
-                                        actual = memoryState.value ?: 0f,
-                                        entry = entryState.value.toFloat(),
-                                        operatorState.value
-                                    )
-                                    memoryState.value = total
-                                    entryState.value = total.toString()
-                                }
-                                operatorState.value = Operator.MULTIPLICATION
-                                eraserState.value = true
-                            } else  {
-                                operatorState.value = Operator.MULTIPLICATION
-                            }
-                        }
-                        Operator.SUBTRACTION -> {
-                            if (eraserState.value.not())  {
-                                if (memoryState.value == null) {
-                                    memoryState.value = entryState.value.toFloat()
-                                } else {
-                                    val total = calculation(
-                                        actual = memoryState.value ?: 0f,
-                                        entry = entryState.value.toFloat(),
-                                        operatorState.value
-                                    )
-                                    memoryState.value = total
-                                    entryState.value = total.toString()
-                                }
-                                operatorState.value = Operator.SUBTRACTION
-                                eraserState.value = true
-                            } else {
-                                operatorState.value = Operator.SUBTRACTION
-                            }
-                        }
-                        Operator.ADDITION -> {
-                            if (!eraserState.value)  {
-                                if (memoryState.value == null) {
-                                    memoryState.value = entryState.value.toFloat()
-                                } else {
-                                    val total = calculation(
-                                        actual = memoryState.value ?: 0f,
-                                        entry = entryState.value.toFloat(),
-                                        operatorState.value
-                                    )
-                                    memoryState.value = total
-                                    entryState.value = total.toString()
-                                }
-                                operatorState.value = Operator.ADDITION
-                                eraserState.value = true
-                            } else {
-                                operatorState.value = Operator.ADDITION
-                            }
-                        }
-                        Operator.EQUALS -> {
-                            val total = calculation(
-                                actual = memoryState.value ?: 0f,
-                                entry = entryState.value.toFloat(),
-                                operatorState.value
-                            )
-                            memoryState.value = total
-                            entryState.value = total.toString()
-                            eraserState.value = true
-                            operatorState.value = Operator.AC
-                        }
+                        Operator.DIVISION -> selectOperator(
+                            entryState,
+                            eraserState,
+                            memoryState,
+                            operatorState,
+                            operator = Operator.DIVISION
+                        )
+                        Operator.MULTIPLICATION -> selectOperator(
+                            entryState,
+                            eraserState,
+                            memoryState,
+                            operatorState,
+                            operator = Operator.MULTIPLICATION
+                        )
+                        Operator.SUBTRACTION -> selectOperator(
+                            entryState,
+                            eraserState,
+                            memoryState,
+                            operatorState,
+                            operator = Operator.SUBTRACTION
+                        )
+                        Operator.ADDITION -> selectOperator(
+                            entryState,
+                            eraserState,
+                            memoryState,
+                            operatorState,
+                            operator = Operator.ADDITION
+                        )
+                        Operator.EQUALS -> equals(entryState, eraserState, memoryState, operatorState)
                         Operator.NONE -> TODO()
                         Operator.MORE_LESS -> TODO()
                         Operator.COMMA -> TODO()
@@ -174,13 +108,75 @@ fun CalculatorComponent() {
     }
 }
 
+fun equals(
+    entryState: MutableState<String>,
+    eraserState: MutableState<Boolean>,
+    memoryState: MutableState<Float?>,
+    operatorState: MutableState<Operator>
+) {
+    val total = calculation(
+        actual = memoryState.value ?: 0f,
+        entry = entryState.value.toFloat(),
+        operatorState.value
+    )
+    memoryState.value = total
+    entryState.value = total.toString()
+    eraserState.value = true
+    operatorState.value = Operator.AC
+}
+
+fun selectOperator(
+    entryState: MutableState<String>,
+    eraserState: MutableState<Boolean>,
+    memoryState: MutableState<Float?>,
+    operatorState: MutableState<Operator>,
+    operator: Operator
+) {
+    if (eraserState.value.not())  {
+        if (memoryState.value == null) {
+            memoryState.value = entryState.value.toFloat()
+        } else {
+            val total = calculation(
+                actual = memoryState.value ?: 0f,
+                entry = entryState.value.toFloat(),
+                operatorState.value
+            )
+            memoryState.value = total
+            entryState.value = total.toString()
+        }
+        operatorState.value = operator
+        eraserState.value = true
+    } else  {
+        operatorState.value = operator
+    }
+}
+
+fun enterNumber(
+    entryState: MutableState<String>,
+    eraserState: MutableState<Boolean>,
+    entry: Int
+) {
+    if (entryState.value.length < 12) {
+        if (eraserState.value) {
+            entryState.value = "0"
+            eraserState.value = false
+        }
+        val valueBuilder = StringBuilder()
+        if (entryState.value != "0") {
+            valueBuilder
+                .append(entryState.value)
+        }
+        valueBuilder.append(entry)
+        entryState.value = valueBuilder.toString()
+    }
+}
+
 private fun calculation(
     actual: Float,
     entry: Float,
     currentOperator: Operator
 ): Float {
     val calculation = when (currentOperator) {
-        // Operator.PERCENTAGE -> result %= currentNumber
         Operator.DIVISION -> Calculator.Division(actual, entry)()
         Operator.MULTIPLICATION -> Calculator.Multiplication(actual, entry)()
         Operator.SUBTRACTION -> Calculator.Subtraction(actual, entry)()

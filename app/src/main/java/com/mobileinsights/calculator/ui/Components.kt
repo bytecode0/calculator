@@ -53,7 +53,6 @@ fun InputUIComponent(mutableValueState: MutableState<String>, fontSize: TextUnit
             fontSize = fontSize
         ),
         readOnly = true,
-        singleLine = true,
         modifier = Modifier
             .fillMaxWidth()
             .animateContentSize(),
@@ -229,25 +228,6 @@ fun NumberRoundedButton(
             onClick(text.toInt())
         }
     )
-}
-
-@Composable
-fun CustomRoundedButton(
-    text: String,
-    buttonStyle: ButtonStyle = ButtonStyle.SpecialOperator,
-    modifier: Modifier = Modifier
-        .size(90.dp)
-        .padding(4.dp),
-    onClick: () -> Unit
-) {
-    Button(
-        modifier = modifier,
-        onClick = onClick,
-        shape = CircleShape,
-        colors = getButtonColors(buttonStyle)
-    ) {
-        Text(text = text, fontSize = 24.sp)
-    }
 }
 
 @Composable
