@@ -1,16 +1,16 @@
-package com.mobileinsights.calculator.viewmodel
+package com.mobileinsights.calculator.model
 
-enum class Operator(
+enum class Operation(
     val symbol: String
 ) {
     NONE(""),
     AC("AC"),
-    MORE_LESS("+/-"),
-    PERCENTAGE("%"),
+    PLUS_MINUS("+/-"),
     COMMA(","),
+    PERCENTAGE("%"),
     DIVISION( "/"),
     MULTIPLICATION( "x"),
     SUBTRACTION("-"),
     ADDITION("+"),
-    EQUALS( "=")
+    EQUALS("=")
 }

@@ -1,4 +1,4 @@
-package com.mobileinsights.calculator.viewmodel
+package com.mobileinsights.calculator.model
 
 sealed class Calculator(
     private val actual: Float,

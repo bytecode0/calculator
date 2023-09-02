@@ -7,19 +7,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.mobileinsights.calculator.ui.theme.Black
+import com.mobileinsights.calculator.viewmodel.CalculatorEvent
 import com.mobileinsights.calculator.viewmodel.CalculatorViewModel
+import com.mobileinsights.calculator.model.Operation
 
 @SuppressLint("MutableCollectionMutableState")
 @Composable
 fun CalculatorComponent(viewModel: CalculatorViewModel) {
-    val operatorState = viewModel.operatorState.collectAsState()
+    val operatorState = viewModel.buttonState.collectAsState()
     val entryState = viewModel.entryState.collectAsState()
-
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -29,18 +31,14 @@ fun CalculatorComponent(viewModel: CalculatorViewModel) {
         Column(
             verticalArrangement = Arrangement.Bottom
         ) {
-            //val eraserState = remember { mutableStateOf(eraserState.value) }
-            // val memoryState: MutableState<Float?> = remember { mutableStateOf(memoryState.value) }
-            val operatorState = remember { mutableStateOf(operatorState.value) }
-            val entryState = remember { entryState }
-            val fontSize = calculateFontSize(entryState.value)
+             val fontSize = calculateFontSize(entryState.value)
             InputUIComponent(entryState, fontSize)
             KeyboardUIComponent(
-                operatorState = operatorState,
+                buttonState = operatorState.value,
                 onNumberChange = { entry: Int ->
-                    viewModel.enterNumber(entry = entry)
-                }, onOperatorClick = { operator ->
-                    viewModel.onEvent(operator)
+                    viewModel.onEvent(CalculatorEvent.Number(entry))
+                }, onOperatorClick = { operation ->
+                    viewModel.onEvent(CalculatorEvent.Calculation(operation))
                 }
             )
         }

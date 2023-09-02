@@ -20,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -32,12 +31,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mobileinsights.calculator.viewmodel.Operator
 import com.mobileinsights.calculator.ui.theme.Black
 import com.mobileinsights.calculator.ui.theme.DarkGray
 import com.mobileinsights.calculator.ui.theme.LightGray
 import com.mobileinsights.calculator.ui.theme.Orange
 import com.mobileinsights.calculator.ui.theme.White
+import com.mobileinsights.calculator.model.Operation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,27 +77,27 @@ fun KeyboardUIComponent(
     modifier: Modifier  = Modifier
         .fillMaxWidth()
         .padding(4.dp),
-    operatorState: MutableState<Operator>,
+    buttonState: Operation,
     onNumberChange: (Int) -> Unit,
-    onOperatorClick: (Operator) -> Unit
+    onOperatorClick: (Operation) -> Unit
 ) {
     Row(modifier = modifier, horizontalArrangement = Arrangement.Absolute.SpaceAround) {
         SpecialOperatorRoundedButton(
-            operator = Operator.AC,
+            button = Operation.AC,
             onClick = {
-                onOperatorClick(Operator.AC)
+                onOperatorClick(Operation.AC)
             }
         )
         SpecialOperatorRoundedButton(
-            operator = Operator.MORE_LESS
+            button = Operation.PLUS_MINUS
         )
         SpecialOperatorRoundedButton(
-            operator = Operator.PERCENTAGE,
+            button = Operation.PERCENTAGE,
             onClick = onOperatorClick
         )
         OperatorRoundedButton(
-            operator = Operator.DIVISION,
-            currentOperator = operatorState.value,
+            operation = Operation.DIVISION,
+            currentOperation = buttonState,
             onClick =  onOperatorClick
         )
     }
@@ -116,8 +115,8 @@ fun KeyboardUIComponent(
             onClick = onNumberChange
         )
         OperatorRoundedButton(
-            operator = Operator.MULTIPLICATION,
-            currentOperator = operatorState.value,
+            operation = Operation.MULTIPLICATION,
+            currentOperation = buttonState,
             onClick =  onOperatorClick
         )
     }
@@ -135,8 +134,8 @@ fun KeyboardUIComponent(
             onClick = onNumberChange
         )
         OperatorRoundedButton(
-            operator = Operator.SUBTRACTION,
-            currentOperator = operatorState.value,
+            operation = Operation.SUBTRACTION,
+            currentOperation = buttonState,
             onClick =  onOperatorClick
         )
     }
@@ -154,8 +153,8 @@ fun KeyboardUIComponent(
             onClick = onNumberChange
         )
         OperatorRoundedButton(
-            operator = Operator.ADDITION,
-            currentOperator = operatorState.value,
+            operation = Operation.ADDITION,
+            currentOperation = buttonState,
             onClick =  onOperatorClick
         )
     }
@@ -165,14 +164,14 @@ fun KeyboardUIComponent(
             onClick = onNumberChange
         )
         SpecialOperatorRoundedButton(
-            operator = Operator.NONE
+            button = Operation.NONE
         )
         SpecialOperatorRoundedButton(
-            operator = Operator.COMMA
+            button = Operation.COMMA
         )
         OperatorRoundedButton(
-            operator = Operator.EQUALS,
-            currentOperator = operatorState.value,
+            operation = Operation.EQUALS,
+            currentOperation = buttonState,
             onClick =  onOperatorClick
         )
     }
@@ -180,34 +179,34 @@ fun KeyboardUIComponent(
 
 @Composable
 fun SpecialOperatorRoundedButton(
-    operator: Operator,
+    button: Operation,
     modifier: Modifier = Modifier
         .size(90.dp)
         .padding(4.dp),
-    onClick: (Operator) -> Unit = { }
+    onClick: (Operation) -> Unit = { }
 ) {
     CustomAnimatedButton(
-        text = operator.symbol,
+        text = button.symbol,
         textColor = Black,
         backgroundColor = LightGray,
         onClick = {
-            onClick.invoke(operator)
+            onClick.invoke(button)
         }
     )
 }
 @Composable
 fun OperatorRoundedButton(
-    operator: Operator,
-    currentOperator: Operator,
-    onClick: (Operator) -> Unit = { }
+    operation: Operation,
+    currentOperation: Operation,
+    onClick: (Operation) -> Unit = { }
 ) {
-    val backgroundColor = if (currentOperator == operator) White else Orange
+    val backgroundColor = if (currentOperation == operation) White else Orange
     CustomAnimatedButton(
-        text = operator.symbol,
+        text = operation.symbol,
         textColor = Black,
         backgroundColor = backgroundColor,
         onClick = {
-            onClick.invoke(operator)
+            onClick.invoke(operation)
         }
     )
 }
