@@ -74,20 +74,17 @@ fun calculateFontSize(text: String): TextUnit {
 
 @Composable
 fun KeyboardUIComponent(
-    modifier: Modifier  = Modifier
-        .fillMaxWidth()
-        .padding(4.dp),
+    modifier: Modifier = Modifier,
     buttonState: Operation,
     onNumberChange: (Int) -> Unit,
     onOperatorClick: (Operation) -> Unit
 ) {
     Row(modifier = modifier, horizontalArrangement = Arrangement.Absolute.SpaceAround) {
         SpecialOperatorRoundedButton(
-            button = Operation.AC,
-            onClick = {
-                onOperatorClick(Operation.AC)
-            }
-        )
+            button = Operation.AC
+        ) {
+            onOperatorClick(Operation.AC)
+        }
         SpecialOperatorRoundedButton(
             button = Operation.PLUS_MINUS
         )
@@ -169,20 +166,13 @@ fun KeyboardUIComponent(
         SpecialOperatorRoundedButton(
             button = Operation.COMMA
         )
-        OperatorRoundedButton(
-            operation = Operation.EQUALS,
-            currentOperation = buttonState,
-            onClick =  onOperatorClick
-        )
+        OperatorRoundedButton(operation = Operation.EQUALS, currentOperation = buttonState, onClick = onOperatorClick)
     }
 }
 
 @Composable
 fun SpecialOperatorRoundedButton(
     button: Operation,
-    modifier: Modifier = Modifier
-        .size(90.dp)
-        .padding(4.dp),
     onClick: (Operation) -> Unit = { }
 ) {
     CustomAnimatedButton(
@@ -235,7 +225,9 @@ fun CustomAnimatedButton(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed = interactionSource.collectIsPressedAsState()
-    val cornerRadius by animateDpAsState(targetValue = if (isPressed.value) 10.dp else 50.dp)
+    val cornerRadius by animateDpAsState(targetValue = if (isPressed.value) 10.dp else 50.dp,
+        label = ""
+    )
 
     Box(
         modifier = Modifier
