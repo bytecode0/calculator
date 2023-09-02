@@ -31,12 +31,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mobileinsights.calculator.model.Operation
 import com.mobileinsights.calculator.ui.theme.Black
 import com.mobileinsights.calculator.ui.theme.DarkGray
 import com.mobileinsights.calculator.ui.theme.LightGray
 import com.mobileinsights.calculator.ui.theme.Orange
 import com.mobileinsights.calculator.ui.theme.White
-import com.mobileinsights.calculator.model.Operation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

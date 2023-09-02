@@ -7,15 +7,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.mobileinsights.calculator.ui.theme.Black
 import com.mobileinsights.calculator.viewmodel.CalculatorEvent
 import com.mobileinsights.calculator.viewmodel.CalculatorViewModel
-import com.mobileinsights.calculator.model.Operation
 
 @SuppressLint("MutableCollectionMutableState")
 @Composable
