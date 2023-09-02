@@ -1,4 +1,4 @@
-package com.mobileinsights.calculator
+package com.mobileinsights.calculator.viewmodel
 
 sealed class Calculator(
     private val actual: Float,
@@ -37,19 +37,4 @@ sealed class Calculator(
             throw IllegalArgumentException("Division by zero is not allowed.")
         }
     }
-}
-
-enum class Operator(
-    val symbol: String
-) {
-    NONE(""),
-    AC("AC"),
-    MORE_LESS("+/-"),
-    PERCENTAGE("%"),
-    COMMA(","),
-    DIVISION( "/"),
-    MULTIPLICATION( "x"),
-    SUBTRACTION("-"),
-    ADDITION("+"),
-    EQUALS( "=")
 }

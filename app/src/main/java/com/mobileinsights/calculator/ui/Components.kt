@@ -12,12 +12,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,6 +21,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -35,7 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mobileinsights.calculator.Operator
+import com.mobileinsights.calculator.viewmodel.Operator
 import com.mobileinsights.calculator.ui.theme.Black
 import com.mobileinsights.calculator.ui.theme.DarkGray
 import com.mobileinsights.calculator.ui.theme.LightGray
@@ -44,7 +41,7 @@ import com.mobileinsights.calculator.ui.theme.White
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InputUIComponent(mutableValueState: MutableState<String>, fontSize: TextUnit) {
+fun InputUIComponent(mutableValueState: State<String>, fontSize: TextUnit) {
     TextField(
         value = mutableValueState.value,
         onValueChange = { },
@@ -258,29 +255,5 @@ fun CustomAnimatedButton(
             text = text,
             color = textColor
         )
-    }
-}
-
-@Composable
-fun getButtonColors(buttonStyle: ButtonStyle) : ButtonColors {
-    return when (buttonStyle) {
-        is ButtonStyle.SpecialOperator -> ButtonDefaults.buttonColors(
-            containerColor = LightGray,
-            contentColor = Black
-        )
-        is ButtonStyle.Operator -> ButtonDefaults.buttonColors(
-            containerColor = Orange,
-            contentColor = Black
-        )
-        is ButtonStyle.SelectedOperator -> ButtonDefaults.buttonColors(
-            containerColor = White,
-            contentColor = Black
-        )
-        else -> {
-            ButtonDefaults.buttonColors(
-                containerColor = DarkGray,
-                contentColor = White
-            )
-        }
     }
 }
